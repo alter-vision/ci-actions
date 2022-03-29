@@ -47,7 +47,7 @@ runs:
       with:
         context: .
         push: false
-        target: deps
+        target: test
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
@@ -57,7 +57,7 @@ runs:
       with:
         context: .
         push: false
-        target: deps
+        target: build
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
@@ -70,6 +70,6 @@ runs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        target: deps
+        target: runtime
         cache-from: type=gha
         cache-to: type=gha,mode=max
