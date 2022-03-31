@@ -12,8 +12,8 @@ on:
         required: true
 
 jobs:
-  Docker:
-    name: Build-n-Push
+  prepare:
+    name: Prepare the environment
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -43,7 +43,11 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: docker.io/altervisionhub/${{ inputs.project }}
-
+  deps:
+    name: Download dependencies
+    runs-on: ubuntu-latest
+    needs: prepare
+    steps:
       - name: Build dependencies
         id: docker-build-deps
         uses: docker/build-push-action@v2
@@ -53,7 +57,11 @@ jobs:
           target: deps
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
+  test:
+    name: Execute tests
+    runs-on: ubuntu-latest
+    needs: deps
+    steps:
       - name: Test
         id: docker-test
         uses: docker/build-push-action@v2
@@ -63,7 +71,11 @@ jobs:
           target: test
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
+  build:
+    name: Build executable
+    runs-on: ubuntu-latest
+    needs: deps
+    steps:
       - name: Build
         id: docker-build
         uses: docker/build-push-action@v2
@@ -73,10 +85,14 @@ jobs:
           target: build
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
+  push:
+    name: Build and push runtime image
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ github.event_name != 'pull_request' }}
+    steps:
       - name: Build runtime
         id: docker-build-runtime
-        if: ${{ github.event_name != 'pull_request' }}
         uses: docker/build-push-action@v2
         with:
           context: .
