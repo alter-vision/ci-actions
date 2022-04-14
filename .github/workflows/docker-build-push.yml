@@ -44,38 +44,8 @@ jobs:
         with:
           images: docker.io/altervisionhub/${{ inputs.project }}
 
-      - name: Build dependencies
-        id: docker-build-deps
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: false
-          target: deps
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Test
-        id: docker-test
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: false
-          target: test
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Build
-        id: docker-build
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: false
-          target: build
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
       - name: Build runtime
-        id: docker-build-runtime
+        id: docker-build
         if: ${{ github.event_name != 'pull_request' }}
         uses: docker/build-push-action@v2
         with:
@@ -83,6 +53,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          target: runtime
           cache-from: type=gha
           cache-to: type=gha,mode=max
